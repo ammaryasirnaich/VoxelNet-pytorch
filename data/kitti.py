@@ -8,6 +8,7 @@ from data_aug import aug_data
 from box_overlaps import bbox_overlaps
 import numpy as np
 import cv2
+import glob
 
 class KittiDataset(data.Dataset):
 
@@ -15,13 +16,23 @@ class KittiDataset(data.Dataset):
         self.type = type
         self.root = root
         self.data_path = os.path.join(root, 'training')
-        self.lidar_path = os.path.join(self.data_path, "crop/")
-        self.image_path = os.path.join(self.data_path, "image_2/")
-        self.calib_path = os.path.join(self.data_path, "calib/")
-        self.label_path = os.path.join(self.data_path, "label_2/")
+        self.lidar_path = os.path.join(self.data_path, "velodyne")
+        self.image_path = os.path.join(self.data_path, "image_2")
+        self.label_path = os.path.join(self.data_path, "label_2")
+        self.calib_path = os.path.join('/data/MD_KITTI/training', "calib")
+        
+        
+        # self.image_path = glob.glob(os.path.join(self.data_path, 'image_2', '*.png'))
+        # self.lidar_path = glob.glob(os.path.join(self.data_path, 'velodyne', '*.bin'))
+        # self.label_path = glob.glob(os.path.join(self.data_path, 'label_2', '*.txt'))
+        # self.calib_path = glob.glob(os.path.join('/data/MD_KITTI/training', 'calib', '*.txt'))
 
-        with open(os.path.join(self.data_path, '%s.txt' % set)) as f:
+        
+        with open(os.path.join('/data/KITTI/imagesets', '%s.txt' % set)) as f:
             self.file_list = f.read().splitlines()
+         
+        # self.file_list   = [name.split('/')[-1].split('.')[-2] for name in self.image_path]
+
 
         self.T = cfg.T
         self.vd = cfg.vd
@@ -139,6 +150,8 @@ class KittiDataset(data.Dataset):
         return np.array(voxel_features), voxel_coords
 
     def __getitem__(self, i):
+        print(self.lidar_path)
+        print(self.file_list[i])
 
         lidar_file = self.lidar_path + '/' + self.file_list[i] + '.bin'
         calib_file = self.calib_path + '/' + self.file_list[i] + '.txt'

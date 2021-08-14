@@ -9,10 +9,14 @@ from loss import VoxelLoss
 from voxelnet import VoxelNet
 import torch.optim as optim
 import torch.nn.init as init
-from nms.pth_nms import pth_nms
+
+# from nms.pth_nms import pth_nms
+from torchvision.ops import nms
+
 import numpy as np
 import torch.backends.cudnn
 from test_utils import draw_boxes
+
 
 import cv2
 def weights_init(m):
@@ -54,7 +58,7 @@ def detection_collate(batch):
 torch.backends.cudnn.enabled=True
 
 # dataset
-dataset=KittiDataset(cfg=cfg,root='./data/KITTI',set='train')
+dataset=KittiDataset(cfg=cfg,root='/data/KITTI',set='train')
 data_loader = data.DataLoader(dataset, batch_size=cfg.N, num_workers=4, collate_fn=detection_collate, shuffle=True, \
                               pin_memory=False)
 
@@ -99,6 +103,7 @@ def train():
 
             # forward
             t0 = time.time()
+            break
             psm,rm = net(voxel_features, voxel_coords)
 
             # calculate loss

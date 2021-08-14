@@ -2,7 +2,10 @@ from utils import get_filtered_lidar, project_velo2rgb, draw_rgb_projections
 from config import config as cfg
 from data.kitti import KittiDataset
 import torch.utils.data as data
-from nms.pth_nms import pth_nms
+
+# from nms.pth_nms import pth_nms
+from torchvision.ops import nms
+
 import torch.nn.functional as F
 import numpy as np
 import torch.backends.cudnn

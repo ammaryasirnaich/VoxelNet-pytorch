@@ -31,9 +31,16 @@ class config:
     pos_threshold = 0.6
     neg_threshold = 0.45
 
+    start = xrange[0]+vw
+    stop = xrange[1]-vw
+    num = W/2
+    print(start)
+    print(stop)
+    print(num)
+
     #   anchors: (200, 176, 2, 7) x y z h w l r
-    x = np.linspace(xrange[0]+vw, xrange[1]-vw, W/2)
-    y = np.linspace(yrange[0]+vh, yrange[1]-vh, H/2)
+    x = np.linspace(xrange[0]+vw, xrange[1]-vw, int(W/2))
+    y = np.linspace(yrange[0]+vh, yrange[1]-vh, int(H/2))
     cx, cy = np.meshgrid(x, y)
     # all is (w, l, 2)
     cx = np.tile(cx[..., np.newaxis], 2)
