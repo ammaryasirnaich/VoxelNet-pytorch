@@ -15,7 +15,7 @@ class KittiDataset(data.Dataset):
     def __init__(self, cfg, root='./KITTI',set='train',type='velodyne_train'):
         self.type = type
         self.root = root
-        self.data_path = os.path.join(root, 'training')
+        self.data_path = os.path.join(root)
         self.lidar_path = os.path.join(self.data_path, "velodyne")
         self.image_path = os.path.join(self.data_path, "image_2")
         self.label_path = os.path.join(self.data_path, "label_2")
@@ -150,9 +150,7 @@ class KittiDataset(data.Dataset):
         return np.array(voxel_features), voxel_coords
 
     def __getitem__(self, i):
-        print(self.lidar_path)
-        print(self.file_list[i])
-
+       
         lidar_file = self.lidar_path + '/' + self.file_list[i] + '.bin'
         calib_file = self.calib_path + '/' + self.file_list[i] + '.txt'
         label_file = self.label_path + '/' + self.file_list[i] + '.txt'

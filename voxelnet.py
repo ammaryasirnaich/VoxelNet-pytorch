@@ -157,11 +157,14 @@ class VoxelNet(nn.Module):
 
     def voxel_indexing(self, sparse_features, coords):
         dim = sparse_features.shape[-1]
-
+        
         dense_feature = Variable(torch.zeros(dim, cfg.N, cfg.D, cfg.H, cfg.W).cuda())
-
-        dense_feature[:, coords[:,0], coords[:,1], coords[:,2], coords[:,3]]= sparse_features
-
+        # print(dense_feature.shape)
+        
+        #Note:
+        # Dimension doesnt match below
+        #  dense_feature[:, coords[:,0].long(), coords[:,1].long(), coords[:,2].long(), coords[:,3].long()]= sparse_features
+        dense_feature[:, coords[:,0].long(), coords[:,1].long(), coords[:,2].long(), coords[:,3].long()]= sparse_features.transpose(0, 1)
         return dense_feature.transpose(0, 1)
 
     def forward(self, voxel_features, voxel_coords):

@@ -18,6 +18,11 @@ import torch.backends.cudnn
 from test_utils import draw_boxes
 
 
+from torch.utils.tensorboard import SummaryWriter
+from torchvision import transforms
+
+
+
 import cv2
 def weights_init(m):
     if isinstance(m, nn.Conv2d):
@@ -58,13 +63,41 @@ def detection_collate(batch):
 torch.backends.cudnn.enabled=True
 
 # dataset
-dataset=KittiDataset(cfg=cfg,root='/data/KITTI',set='train')
-data_loader = data.DataLoader(dataset, batch_size=cfg.N, num_workers=4, collate_fn=detection_collate, shuffle=True, \
+train_dataset=KittiDataset(cfg=cfg,root='/data/KITTI/training',set='train')
+train_dataloader = data.DataLoader(train_dataset, batch_size=cfg.N, num_workers=4, collate_fn=detection_collate, shuffle=True, \
                               pin_memory=False)
+
+
+# val_dataset=KittiDataset(cfg=cfg,root='/data/KITTI/validataion',set='val')
+# val_dataloader = data.DataLoader(val_dataset, batch_size=cfg.N, num_workers=4, collate_fn=detection_collate, shuffle=True, \
+#                               pin_memory=False)
+
+
+
+
 
 # network
 net = VoxelNet()
 net.cuda()
+
+
+#Note: Ammaar 
+val_dataloader_iter = iter(train_dataloader)
+voxel_features, voxel_coords, pos_equal_one, neg_equal_one, targets, images, calibs, ids = next(val_dataloader_iter)
+
+# wrapping and moving data to GPU
+# wrapper to variable
+voxel_features = Variable(torch.cuda.FloatTensor(voxel_features))
+voxel_tensor_coord =  Variable(torch.cuda.FloatTensor(voxel_coords))
+
+with SummaryWriter(comment='VoxelNet') as w: 
+    w.add_graph(net, [voxel_features, voxel_tensor_coord] , verbose=False)
+    w.close()
+
+
+print("function completed")
+print("VoxelNet added into the graph")
+    
 
 
 def train():
@@ -85,12 +118,14 @@ def train():
     batch_iterator = None
     epoch_size = len(dataset) // cfg.N
     print('Epoch size', epoch_size)
-    for iteration in range(10000):
-            if (not batch_iterator) or (iteration % epoch_size == 0):
-                # create batch iterator
-                batch_iterator = iter(data_loader)
+    
+    for (i, data) in enumerate(train_dataloader):
+            # if (not batch_iterator) or (iteration % epoch_size == 0):
+            #     # create batch iterator
+            #     batch_iterator = iter(data_loader)
+            data = next(train_dataloader)
 
-            voxel_features, voxel_coords, pos_equal_one, neg_equal_one, targets, images, calibs, ids = next(batch_iterator)
+            voxel_features, voxel_coords, pos_equal_one, neg_equal_one, targets, images, calibs, ids = data
 
             # wrapper to variable
             voxel_features = Variable(torch.cuda.FloatTensor(voxel_features))
